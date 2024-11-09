@@ -17,3 +17,4 @@ def get_user_free_slots():
     events = fetch_calendar_data()
     free_slots = get_free_slots(events)
     return jsonify(free_slots)
+
