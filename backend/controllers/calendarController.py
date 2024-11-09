@@ -59,6 +59,7 @@ def get_user_calendar_events(start_time, end_time):
                 "summary": event.get("summary"),
                 "location": event.get("location"),
                 "attendees": [att.get("email") for att in event.get("attendees", [])],
+                "id": event.get("id")
             }
             user_events.append(event_info)
 
@@ -67,3 +68,13 @@ def get_user_calendar_events(start_time, end_time):
     except Exception as error:
         print(f"An error occurred: {error}")
         return []
+    
+def deleteEvent(id):
+    creds = googleAuth.google_oauth_flow()  
+    service = build("calendar", "v3", credentials=creds)
+    try:
+        service.events().delete(calendarId='primary', eventId=id,sendNotifications=True).execute()
+        return jsonify({"message": "Event deleted successfully."})
+    except Exception as error:
+        print(f"An error occurred: {error}")
+        return jsonify({"message": "An error occurred while deleting the event."})
