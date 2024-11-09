@@ -1,2 +1,4 @@
 # config.py
-GOOGLE_CALENDAR_ID = "your-calendar-id@group.calendar.google.com"
+
+GOOGLE_API_SCOPES = ['https://www.googleapis.com/auth/calendar']
+CLIENT_SECRET_FILE = 'client_secret.json'

@@ -1,21 +1,23 @@
-<!-- templates/confirm.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Confirm Event</title>
 </head>
 <body>
-    <h2>Confirm Event Details</h2>
-    <form action="{{ url_for('confirm') }}" method="post">
-        <p>Event Title: {{ event_data["summary"] }}</p>
-        <p>Event Time: {{ event_data["start"]["dateTime"] }}</p>
-        <p>Location: {{ event_data["location"] }}</p>
-        <input type="hidden" name="summary" value="{{ event_data['summary'] }}">
-        <input type="hidden" name="start" value="{{ event_data['start']['dateTime'] }}">
-        <input type="hidden" name="end" value="{{ event_data['end']['dateTime'] }}">
+    <h1>Confirm Event</h1>
+    <p>Title: {{ event_data['title'] }}</p>
+    <p>Time: {{ event_data['time'] }}</p>
+    <p>Location: {{ event_data['location'] }}</p>
+
+    <form method="post" action="{{ url_for('confirm') }}">
+        <input type="hidden" name="title" value="{{ event_data['title'] }}">
+        <input type="hidden" name="time" value="{{ event_data['time'] }}">
         <input type="hidden" name="location" value="{{ event_data['location'] }}">
-        <button type="submit">Confirm</button>
+        <button type="submit">Confirm Event</button>
     </form>
+
+    <a href="{{ url_for('index') }}">Back</a>
 </body>
 </html>
