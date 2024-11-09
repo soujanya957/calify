@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, session
+from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify
 import google.auth
 import google.auth.transport.requests
 import google.oauth2.credentials
@@ -71,39 +71,48 @@ def logout():
     session.pop("credentials", None)
     flash("You have been logged out.")
     return redirect(url_for("index"))
-
 @app.route("/", methods=["GET", "POST"])
 def index():
     """Main page to interact with Google Calendar."""
     if "credentials" not in session:
         return redirect(url_for("login"))
-    
-    credentials = google.oauth2.credentials.Credentials(**session["credentials"])
-    service = googleapiclient.discovery.build("calendar", "v3", credentials=credentials)
+    service = get_calendar_service()
 
     if request.method == "POST":
         prompt = request.form.get("prompt")
+        print("Debug - Received prompt:", prompt)  
         event_data = parse_event(prompt)
-
+        session["event_data"] = event_data
         # Render the confirmation page with parsed event details
         return render_template("confirm.html", event_data=event_data)
 
     return render_template("index.html")
 
-@app.route("/confirm", methods=["POST"])
-def confirm():
-    """Creates the event in the user's calendar."""
+def get_calendar_service():
+    """Initializes the Google Calendar service using stored credentials."""
     if "credentials" not in session:
-        return redirect(url_for("login"))
+        raise Exception("User is not logged in.")
     
     credentials = google.oauth2.credentials.Credentials(**session["credentials"])
     service = googleapiclient.discovery.build("calendar", "v3", credentials=credentials)
-    
-    event_data = request.form.to_dict()
-    event = create_event_in_calendar(service, event_data)
-    
-    flash("Event created successfully!")
-    return redirect(url_for("index"))
+    return service
+
+@app.route('/confirm', methods=['GET','POST'])
+def confirm():
+    # Retrieve the prompt from the POST request
+    event_data = session.get('event_data')
+    service = get_calendar_service()  # Initialize Google Calendar service
+
+    # Parse the prompt for structured event details
+
+    # Check if parsed event data is valid and call create_event_in_calendar
+    if event_data:
+        create_event_in_calendar(service, event_data)  # Create event using parsed data
+
+    # Optionally, you can print a success message for manual confirmation
+    session.pop('event_data', None)
+
+    return redirect(url_for('index'))
 
 if __name__ == "__main__":
     app.run(debug=True)
